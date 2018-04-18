@@ -1,0 +1,23 @@
+"jefftech"
+{
+	"base"		"base"
+	"title"		"Jeff Tech"
+	"maps"		""
+	"menusystem"	"1"
+	"workshopid"	""
+
+	"settings"
+	{
+		1
+		{
+			"name"		"jeff_difficulty"
+			"text"		"Resource Scaling"
+			"help"		"Scaling the amount of resources you get from each of the nodes."
+			"type"		"Numeric"
+			"default"	"1"
+			"singleplayer"	""
+		}
+
+	}
+
+}
