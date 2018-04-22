@@ -1,0 +1,106 @@
+local LIST = {
+	Init = function(self)
+		local w, h = ScrW()/5-32, 16
+		self:SetSize(w,h)
+		self:SetPos(ScrW()/5*4+16,0)
+		--self:SetVisible(true)
+		
+		local Item = self:Add("DLabel")
+		local Amount = self:Add("DLabel")
+		Item:SetPos(0,0)
+		Amount:SetPos(w/2,0)
+		Item:SetTextColor(Color(255,255,255,255))
+		Amount:SetTextColor(Color(255,255,255,255))
+	end,
+	Paint = function(self, w, h)
+		draw.RoundedBox(0,0,16,w,h,Color(255,255,255,255))
+	end,
+	ActionSignal = function(self, signal, value)
+		if signal == "InvRefresh" then
+			local Item = self:GetChildren()[1]
+			local Amount = self:GetChildren()[2]
+			
+			Item:SetText(self.Item)
+			Amount:SetText(self.Amount)
+		end
+	end
+}
+
+LIST = vgui.RegisterTable(LIST, "DPanel")
+
+local INVENTORY = {
+	Init = function(self)
+		self:SetSize(ScrW()/5, ScrH())
+		
+		local w,h = self:GetSize()
+		self:SetPos(w*4,0)
+		--self:MakePopup()
+		self:SetVisible(true)
+		
+		self.scrollcount = 0
+		
+		-- local ItemList = vgui.Create("DListView", self) -- replace with a not gay function -- treat it as a function ie list[1] = wood etc, and set the pos according to index
+		-- ItemList:Dock(FILL)
+		-- ItemList:DockMargin(16,0,0,16)
+		-- ItemList:SetMultiSelect(true)
+		-- ItemList:AddColumn("Items")
+		-- ItemList:AddColumn("Amounts")
+		
+		-- function ItemList:Paint(self, w, h)
+			-- surface.SetDrawColor(0,0,0)
+			-- surface.SetTextColor(255,255,255)
+			-- surface.DrawOutlinedRect(0,0,50,10)
+		-- end
+		
+		-- ItemList.OnRowSelected = function(lst, index, pnl)
+		
+		-- end
+		
+	end,
+	Paint = function(self, w, h)
+		draw.RoundedBox(0,0,0,w,h,Color(0,0,0,155))
+		surface.SetDrawColor(0,0,0)
+		surface.DrawOutlinedRect(0,-1,w+1,h+1)
+		surface.DrawOutlinedRect(1,-2,w+1,h+2)
+	end,
+	ActionSignal = function(self, signal, focused)
+		if signal == "InvRefresh" then
+			if !(self.PlyInv == nil) then
+				--ItemList = self:GetChildren()[1]
+			--if !(table.Count(ItemList:GetLines()) == table.Count(self.PlyInv)) then
+			
+				local Inv = self.PlyInv
+				for i = 0, self.scrollcount do
+					table.insert(Inv,Inv[1])
+					table.remove(Inv,1)
+				end
+				self.PlyScrolledInv = Inv
+			
+				-- local i = 1
+				-- for _,e in pairs(ItemList:GetLines()) do
+					-- ItemList:RemoveLine(i)
+					-- i = i + 1
+				-- end
+				-- for _,e in pairs(self.PlyInv) do
+					-- ItemList:AddLine(e["Item"],e["Amount"])
+				-- end
+			end
+			if !(self.PlyInv == nil) and self.InvList == nil then
+				self.InvList = {}
+				print("List Being Populated")
+				for i = 1, math.ceil(ScrH()*4/5/16) do
+					self.InvList[i] = self:Add(LIST)-- this is being called relitive to the parent panel, not to the client, and therefore isnt being rendered on the client
+					local CL = self.InvList[i]
+					local x, y = self:GetPos()
+					y = (i-1)*16
+					CL:SetPos(x+16,y)
+					print(CL)
+					if table.Count(self.PlyScrolledInv)-i>=0 then 
+						CL.Item = self.PlyScrolledInv[i]["Item"]
+						CL.Amount = self.PlyScrolledInv[i]["Amount"] 
+					end
+				end
+			end
+		end
+	end
+}
