@@ -3,6 +3,8 @@ GM.Author = "Bubbet & Yoshi"
 GM.Email = "uhh jeff"
 GM.Website = "https://www.youtube.com/watch?v=AfIOBLr1NDU"
 
+include("player_class/player_jefftech.lua")
+
 if SERVER then
 	include("player_class/player_jefftech.lua")
 	include("modules/inventory.lua")

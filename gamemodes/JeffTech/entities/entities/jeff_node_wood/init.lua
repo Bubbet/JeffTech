@@ -40,7 +40,7 @@ function ENT:DoSpawn()
 			local trace = util.TraceLine( {
 				start = self:GetPos(),
 				endpos = self:GetPos() + Vector(math.random(-self.Radius,self.Radius), math.random(-self.Radius,self.Radius), -10000),
-				filter = function ( ent ) if ( ent:GetClass() == "prop_physics" ) then return true end end
+				filter = function ( ent ) if ( ent:GetClass() == "jeff_tree_small" || ent:GetClass() == "jeff_tree_big" ) then return true end end
 			} )
 			local allowspawn = true
 			for _,p in pairs(self.SpawnLocations) do
@@ -59,12 +59,10 @@ function ENT:DoSpawn()
 			local prop
 			if math.random(1,10) <= 1 then
 				--rarespawn
-				prop = ents.Create("prop_physics")
-				prop:SetModel("models/props/de_inferno/tree_large.mdl")
+				prop = ents.Create("jeff_tree_big") -- models/props/de_inferno/tree_large.mdl
 			else
 				--normal spawn
-				prop = ents.Create("prop_physics")
-				prop:SetModel("models/props/de_inferno/tree_small.mdl")
+				prop = ents.Create("jeff_tree_small")
 			end
 			table.insert(self.PropArray, prop)
 			prop:SetPos(e)

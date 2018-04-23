@@ -99,8 +99,8 @@ function GM:GiveItem( ply, items, amounts, drop )
 	local itemamount = {}
 	for _,e in pairs(items) do
 		for _,k in pairs (sql.Query("SELECT Amount FROM 'Jeff_Inventory_"..ply:SteamID().."' WHERE Item='"..e.."';")[1]) do itemamount[i] = k end -- really fucking weird gay garbage for some reason when setting itemamount[i] = sql.Query()[1][1] it returned a nil or table value i dont remember
-		print(itemamount[i])
-		print(amounts[i])
+		--print(itemamount[i])
+		--print(amounts[i])
 		if itemamount[i] + amounts[i] < 0 then
 			allowed = false
 			itemamount[i] = 0

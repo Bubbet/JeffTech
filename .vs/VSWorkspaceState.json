@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\gamemodes",
+    "\\gamemodes\\JeffTech",
+    "\\gamemodes\\JeffTech\\gamemode",
+    "\\gamemodes\\JeffTech\\gamemode\\modules",
+    "\\gamemodes\\JeffTech\\gamemode\\player_class"
+  ],
+  "SelectedNode": "\\gamemodes\\JeffTech\\gamemode\\player_class\\player_jefftech.lua",
+  "PreviewInSolutionExplorer": false
+}

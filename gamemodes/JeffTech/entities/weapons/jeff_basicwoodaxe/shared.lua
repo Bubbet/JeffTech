@@ -8,7 +8,7 @@ SWEP.Instructions = [[Used to gather wood]]
 SWEP.ViewModel = "models/weapons/c_crowbar.mdl"
 SWEP.ViewModeFlip = false
 SWEP.UseHands = true
-SWEP.WorldModel = "models/props_forest/axe.mdl"
+SWEP.WorldModel = "models/props/cs_militia/axe.mdl"
 SWEP.SetHoldType = "melee"
 
 SWEP.Weight = 5
@@ -36,8 +36,11 @@ SWEP.Secondary.Automatic = false
 
 SWEP.ShouldDropOnDie = false
 
+SWEP.Durability = 2000
+
 local SwingSound = Sound("weapons/crowbar/crowbar_swing_miss1.wav")
 local HitSound = Sound("weapons/crossbow/hitbod1.wav")
+local HitWood = Sound("")
 
 function SWEP:Initialize()
 	self:SetWeaponHoldType("melee")
@@ -73,17 +76,29 @@ function SWEP:PrimaryAttack()
 	end
 
 	local ent = tr.Entity
-		
-	if(IsValid( ent) && (ent:IsPlayer() || ent:IsNPC() )) then
+	
+	if(tr.Hit)then
+		self.Durability = self.Durability-10
+		if self.Durability <= 0 then self:Remove() end
+	end
+	
+	if(IsValid( ent) && (ent:IsPlayer() || ent:IsNPC())) then
 		self.Weapon:SendWeaponAnim(ACT_VM_HITCENTER)
 		ply:SetAnimation(PLAYER_ATTACK1)
 		
 		ply:EmitSound(HitSound)
 		ent:SetHealth(ent:Health() -10)
-		if(ent:health() < 1) then
-			ent:kill()
+		if(ent:Health() < 1) then
+			ent:Kill()
 		end
 	
+	elseif( IsValid(ent) && (ent:GetClass() == "jeff_tree_small" or ent:GetClass() == "jeff_tree_big") ) then
+		self.Weapon:SendWeaponAnim(ACT_VM_HITCENTER)
+		ply:SetAnimation(PLAYER_ATTACK1)
+		
+		ply:EmitSound(HitWood)
+		
+		ent.infoTable = { 10, ply, self }
 	elseif( !IsValid(ent)) then
 		self.Weapon:SendWeaponAnim(ACT_VM_MISSCENTER)
 		ply:SetAnimation(PLAYER_ATTACK1)
