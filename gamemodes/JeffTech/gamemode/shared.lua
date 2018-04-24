@@ -8,6 +8,7 @@ include("player_class/player_jefftech.lua")
 if SERVER then
 	include("player_class/player_jefftech.lua")
 	include("modules/inventory.lua")
+	include("modules/nodehandling.lua")
 end
 
 -- DeriveGamemode("sandbox") -- Remove Later

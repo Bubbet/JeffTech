@@ -158,9 +158,9 @@ function PLAYER:FinishMove( move )
 		local newSpeed = speedAddition + move:GetVelocity():Length2D()
 		
 		-- Clamp it to make sure they can't bunnyhop to ludicrous speed
-		if newSpeed > maxSpeed then
-			speedAddition = speedAddition - (newSpeed - maxSpeed)
-		end
+		-- if newSpeed > maxSpeed then
+			-- speedAddition = speedAddition - (newSpeed - maxSpeed)
+		-- end
 		
 		-- Reverse it if the player is running backwards
 		if move:GetVelocity():Dot(forward) < 0 then

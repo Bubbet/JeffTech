@@ -27,6 +27,10 @@ function GM:PlayerInitialSpawn( ply )
 	
 end
 
+function GM:InitPostEntity()
+	self:LoadNodes()
+end
+
 concommand.Add( "jeff_difficulty", function( ply, cmd, args )
 	return args[1]
 end )
