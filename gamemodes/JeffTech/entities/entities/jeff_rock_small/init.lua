@@ -5,7 +5,7 @@ include('shared.lua')
 include('../basefiles/resource.lua')
 
 ENT.MaxResource = 1000
-ENT.Resourcetogive = "wood"
+ENT.Resourcetogive = "stone"
 ENT.YeildMul = 1
-ENT.Tool = "woodaxe"
-ENT.Models = {"models/props/de_inferno/tree_small.mdl"}
+ENT.Tool = "pickaxe"
+ENT.Models = {"models/props_wasteland/rockcliff05b.mdl"}

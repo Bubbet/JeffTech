@@ -131,6 +131,7 @@ function GM:GiveItem( ply, items, amounts, drop )
 		sql.Query("UPDATE 'Jeff_Inventory_"..ply:SteamID().."' SET Amount="..itemamount[k].." WHERE Item='"..e.."';")
 		k = k + 1
 	end
+	return true
 end
 
 -- function GM:GiveItem( ply, item, amount ) -- Used for debugging, and maybe in the game code
@@ -156,9 +157,9 @@ end
 concommand.Add("jeff_giveitem", function(ply, stringargs, args) GAMEMODE:GiveItem(ply, {args[1]}, {args[2]}, args[3]==1) end)
 
 function GM:ReturnInv( ply )
-	for _,e in pairs(sql.Query("SELECT * FROM 'Jeff_Inventory_"..ply:SteamID().."';")) do
-		print("Player: " .. ply:Name() .. ", Item: " .. e["Item"] .. ", Amount: " .. e["Amount"])
-	end
+	--for _,e in pairs(sql.Query("SELECT * FROM 'Jeff_Inventory_"..ply:SteamID().."';")) do
+		--print("Player: " .. ply:Name() .. ", Item: " .. e["Item"] .. ", Amount: " .. e["Amount"])
+	--end
 	return sql.Query("SELECT * FROM 'Jeff_Inventory_"..ply:SteamID().."';")
 end
 

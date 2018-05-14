@@ -30,6 +30,46 @@ function GM:LoadNodes()
 		filecontents = file.Read("gamemodes/JeffTech/data/nodedata/"..map..".txt", "THIRDPARTY")
 	end
 	
+	if string.find(map,"gms_") then -- checking map for existing ents to replace with our counterpart
+		local allents = ents.GetAll()
+		
+		for _,e in pairs(allents) do
+			local model = e:GetModel()
+			local ent = nil
+			if string.find(e:GetClass(),"prop_") and cvars.Number("jeff_overwrite_map_resources") <= 1 then
+				if string.find(model,"tree") then
+					if string.find(model,"deciduous") then
+						ent = ents.Create("jeff_tree_small")
+					else
+						ent = ents.Create("jeff_tree_big")
+					end
+				elseif string.find(model,"rock") then
+					if string.find(model,"cluster") then
+						ent = ents.Create("jeff_rock_big")
+					else
+						ent = ents.Create("jeff_rock_small")
+					end				
+				end
+				if !(ent == nil) then 
+					ent:SetPos(e:GetPos())
+					ent:SetAngles(e:GetAngles())
+					ent:Spawn()
+					ent:SetModel(model)
+					ent:GetPhysicsObject():EnableMotion(false)
+				end
+			end
+			if string.find(e:GetClass(),"prop_") then e:Remove() end
+		end
+		if cvars.Number("jeff_overwrite_map_resources") == 0 then filecontents = nil end -- no
+	end
+	
+	if filecontents == nil then 
+		timer.Simple(10, function()
+			print("[JeffTech] Warning: No node file for this map, make one by spawning nodes then running the jeff_savenodes command.")
+		end)
+		return nil
+	end
+	
 	local nodes = string.Explode(";", filecontents)
 	
 	for _,e in pairs(nodes) do

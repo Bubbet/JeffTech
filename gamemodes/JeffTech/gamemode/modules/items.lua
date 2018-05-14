@@ -8,9 +8,19 @@ DEFAULT_INV = {
 CRAFTING_RECIPES = {
 	
 	--9cell grid, product, amount, time, maybe add what machines can do it as an array NOT FINAL MARKUP
+	--{"slot1","slot2","slot3",
+	--"slot4","slot5",
+	--"slot6","slot7","slot8",
+	--"product",amount(int)}
+	
 	{"wood","wood","wood",
-	"wood","ore","wood",
 	"wood","wood","wood",
-	"metal",10,100}
+	"wood","wood",
+	"metal",10,100},
+	{"wood","wood","wood",
+	"wood","wood",
+	"metal","metal","metal",
+	"stone",50}
+	
 
 }

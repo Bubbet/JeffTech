@@ -9,9 +9,10 @@ if SERVER then
 	include("player_class/player_jefftech.lua")
 	include("modules/inventory.lua")
 	include("modules/nodehandling.lua")
+	include("modules/crafting.lua")
 end
 
--- DeriveGamemode("sandbox") -- Remove Later
+DeriveGamemode("sandbox") -- Remove Later
 
 function GM:Initialize()
 	--CreateConVar("jeff_debug", "false")

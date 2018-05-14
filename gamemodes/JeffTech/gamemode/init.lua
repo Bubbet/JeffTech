@@ -34,3 +34,7 @@ end
 concommand.Add( "jeff_difficulty", function( ply, cmd, args )
 	return args[1]
 end )
+
+concommand.Add( "jeff_overwrite_map_resources", function( ply, cmd, args )
+	return args[1]
+end )
