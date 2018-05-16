@@ -5,13 +5,6 @@ GM.Website = "https://www.youtube.com/watch?v=AfIOBLr1NDU"
 
 include("player_class/player_jefftech.lua")
 
-if SERVER then
-	include("player_class/player_jefftech.lua")
-	include("modules/inventory.lua")
-	include("modules/nodehandling.lua")
-	include("modules/crafting.lua")
-end
-
 DeriveGamemode("sandbox") -- Remove Later
 
 function GM:Initialize()

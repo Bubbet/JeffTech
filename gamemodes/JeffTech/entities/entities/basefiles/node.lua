@@ -42,7 +42,7 @@ function ENT:DoSpawn()
 				if p:Distance(trace.HitPos-Vector(0,0,20)) < self.minimumspacing or trace.HitNormal.z < 0.25 then allowspawn = false end
 			end
 			if trace.HitWorld and allowspawn then
-				print("hitworld")
+				--print("hitworld")
 				table.insert(self.SpawnLocations, trace.HitPos-Vector(0,0,20))
 				table.insert(self.SpawnAngles, trace.HitNormal:Angle()+Angle(90,0,0))
 			else

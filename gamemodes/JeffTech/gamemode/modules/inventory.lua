@@ -95,10 +95,16 @@ hook.Add("PlayerSpawn", "SyncInv", function( ply ) GAMEMODE:CreateDB( ply ) end 
 
 function GM:GiveItem( ply, items, amounts, drop )
 	local allowed = true
-	local i = 1
 	local itemamount = {}
-	for _,e in pairs(items) do
-		for _,k in pairs (sql.Query("SELECT Amount FROM 'Jeff_Inventory_"..ply:SteamID().."' WHERE Item='"..e.."';")[1]) do itemamount[i] = k end -- really fucking weird gay garbage for some reason when setting itemamount[i] = sql.Query()[1][1] it returned a nil or table value i dont remember
+	for k,e in pairs(items) do
+		if e == "" then 
+			table.remove(items,k)
+			table.remove(amounts,k)
+			continue 
+		end
+	end
+	for i,e in pairs(items) do
+		itemamount[i] = sql.Query("SELECT Amount FROM 'Jeff_Inventory_"..ply:SteamID().."' WHERE Item='"..e.."';")[1]["Amount"]
 		--print(itemamount[i])
 		--print(amounts[i])
 		if itemamount[i] + amounts[i] < 0 then
@@ -107,30 +113,64 @@ function GM:GiveItem( ply, items, amounts, drop )
 		else
 			itemamount[i] = itemamount[i] + amounts[i]
 		end
-		i = i + 1
-	end
-
-	if drop then
-		--drop items very losely done fix later
-		ent = ents.Create("dropped_items")
-		ent.items = items
-		ent.amounts = itemamount
-		ent:SetPos(ply:GetShootPos() + ply:EyeAngles():Forward() * 10)
-		ent:SetAngles(ply:EyeAngles())
-		ent:Spawn()
-		
-	else
-		--remove items from inventory
-		if !allowed then
-			return false
-		end
 	end
 	
-	local k = 1
-	for _,e in pairs(items) do
-		sql.Query("UPDATE 'Jeff_Inventory_"..ply:SteamID().."' SET Amount="..itemamount[k].." WHERE Item='"..e.."';")
-		k = k + 1
+	if !allowed and !drop then
+		return false
 	end
+	
+	if drop then
+		local ditems = {}
+		local damounts = {}
+		local toolarray = {}
+		table.Empty(ditems)
+		table.Empty(damounts)
+		ditems = table.Copy(items)
+		damounts = table.Copy(amounts)
+		
+		for i,e in pairs(items) do
+			for _,t in pairs(TOOLS) do
+				if t == ("jeff_"..e) then
+					table.insert(toolarray,t)
+					itemamount[i] = itemamount[i]-amounts[i]+amounts[i]/math.abs(amounts[i])
+					table.remove(ditems,i)
+					table.remove(damounts,i)
+				end
+			end
+		end
+		
+		for i,e in pairs(toolarray) do
+			local ent = ents.Create(e)
+			ent:SetPos(util.QuickTrace(ply:GetShootPos(),ply:EyeAngles():Forward() * 100,ply).HitPos)
+			ent:SetAngles(ply:EyeAngles())
+			ent:Spawn()
+		end
+		
+		if table.Count(ditems)>0 then
+			ent = ents.Create("jeff_dropped_items")
+			ent.Items = ditems
+			for i,e in pairs(damounts) do
+				damounts[i] = -e
+			end
+			ent.Amounts = damounts
+			ent:SetPos(util.QuickTrace(ply:GetShootPos(),ply:EyeAngles():Forward() * 100,ply).HitPos)
+			ent:SetAngles(ply:EyeAngles())
+			ent:Spawn()
+		end
+		
+	end
+	
+	--local k = 1
+	for k,e in pairs(items) do
+		sql.Query("UPDATE 'Jeff_Inventory_"..ply:SteamID().."' SET Amount="..itemamount[k].." WHERE Item='"..e.."';")
+		--k = k + 1
+	end
+	
+	net.Start("CFin")
+		net.WriteTable(GAMEMODE:ReturnInv(ply))
+		net.WriteBool(succeeded)
+	net.Send(ply)
+	
 	return true
 end
 
@@ -154,7 +194,49 @@ end
 -- items = stringargs:explode("-")[1]:explode(" ")
 -- amounts = stringargs:explode("-")[2]:explode(" ")
 
-concommand.Add("jeff_giveitem", function(ply, stringargs, args) GAMEMODE:GiveItem(ply, {args[1]}, {args[2]}, args[3]==1) end)
+--[[ scrapped drop command stuff
+		local ditemamount = {}
+		local ditems = {}
+		
+		local istool = {}
+		for j,i in pairs(items) do
+			istool[j] = nil
+			for k,t in pairs(TOOLS) do --add autopopulating of tools table from folder
+				if t == "jeff_"..i then istool[j] = t end -- DROPPING WOOD CAUSES DROPPING WOOD AXE FIX PLZ string.find(t,i)
+			end
+		end
+		
+		for k,e in pairs(istool) do
+			if e then
+				itemamount[k] = itemamount[k]^0
+				if itemamount[k] ~= 0 then
+					local ent = ents.Create(e)
+					ent:SetPos(ply:GetShootPos() + ply:EyeAngles():Forward() * 25)
+					ent:SetAngles(ply:EyeAngles())
+					ent:Spawn()
+				end
+				--something something limit the amount to be removed to 1, and spawn one of each weapon.
+			else
+				table.insert(ditems,items[k])
+				table.insert(ditemamount,amounts[k])
+				--something something add to new array for the dropped crate to use
+			end
+		end
+		--can i get uhh proper dropping instead of this if drop then assume fine NEEDS TO: have amount < drop amount then drop amount = have amount
+		if not items == {} then
+			--drop items very losely done fix later
+			ent = ents.Create("jeff_dropped_items")
+			ent.items = ditems
+			ent.amounts = ditemamount
+			ent:SetPos(ply:GetShootPos() + ply:EyeAngles():Forward() * 25)
+			ent:SetAngles(ply:EyeAngles())
+			ent:Spawn()
+		end
+]]
+
+
+
+concommand.Add("jeff_giveitem", function(ply, stringargs, args) GAMEMODE:GiveItem(ply, {args[1]}, {args[2]}, args[3]=="true") end)
 
 function GM:ReturnInv( ply )
 	--for _,e in pairs(sql.Query("SELECT * FROM 'Jeff_Inventory_"..ply:SteamID().."';")) do

@@ -74,11 +74,12 @@ function GM:LoadNodes()
 	
 	for _,e in pairs(nodes) do
 		local nodeinfo = string.Explode(",", e)
+		if !nodeinfo or !nodeinfo[2] then continue end
 		local class = nodeinfo[1]
-		local posraw = string.Explode(".", nodeinfo[2])
+		local posraw = string.Explode(".", 	nodeinfo[2])
 		local pos = Vector(posraw[1],posraw[2],posraw[3])
 		
-		print(class)
+		--print(class)
 		
 		local node = ents.Create(class)
 		node:SetPos(pos)

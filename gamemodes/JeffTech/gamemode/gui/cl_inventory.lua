@@ -23,6 +23,12 @@ local function SendCIcons()
 	return out
 end
 
+local function SendItemDrop(item, amount)
+	net.Start("JeffItemDrop")
+		net.WriteTable({item,amount})
+	net.SendToServer()
+end
+
 local function CraftRequest(recipe, amount)
 	if recipe[9] == "none" then return end
 	
@@ -58,7 +64,10 @@ CRAFTINGICON = {
 		local img = "jefftech/icons/noicon.png"
 		if file.Exists("materials/jefftech/icons/"..self.Item..".png", "GAME") then img = "jefftech/icons/"..self.Item..".png" end
 		self:SetImage(img)
-		if img == "jefftech/icons/noicon.png" then self.Label:SetText(self.Item) end
+		self:SetToolTip("Item: "..self.Item)
+		if img == "jefftech/icons/noicon.png" then 
+			self.Label:SetText(self.Item) 
+		end
 		draw.RoundedBox(0,0,0,w,h,self.root.gridcolor)
 		surface.SetDrawColor(self.root.linecolor)
 		surface.DrawOutlinedRect(0,0,w,h)
@@ -205,6 +214,13 @@ CRAFTINGCONTAINER = {
 		--[[self.COutput:Receiver('CIcon', function(self, droppedarray)
 			
 		end, {})]]
+		
+		self.COutput.Label = self.COutput:Add("DLabel")
+		self.COutput.Label:SetFont("Inv_Contents")
+		self.COutput.Label:SetTextColor(self.root.textcolor)
+		self.COutput.Label:SetText("")
+		self.COutput.Label:Dock(FILL)
+		self.COutput.Label:SetContentAlignment(5)
 	end,
 	Paint = function(self,w,h)
 		draw.RoundedBox(0,0,0,w,h,self.root.bgcolor)
@@ -215,6 +231,71 @@ CRAFTINGCONTAINER = {
 }
 
 CRAFTINGCONTAINER = vgui.RegisterTable(CRAFTINGCONTAINER, "Panel")
+
+DROP_PANEL = {
+	ManInit = function(self)
+	
+		self.w = self.root.wob*3
+		self.h = rowsize
+		
+		self:SetToolTip("Dropping: "..self.Item)
+		
+		self:SetSize(self.w,self.h)
+		self:SetPos(self.root.w/2-self.w/2,self.root.h/2-self.h/2)
+
+		self.DNumSlider = self:Add("DNumSlider")
+		self.DNumSlider:SetPos(4,0)
+		self.DNumSlider:SetSize(self.w*3/4,self.h)
+		self.DNumSlider:SetText("Dropping: "..self.Item)
+		self.DNumSlider:SetMin(0)
+		self.DNumSlider:SetMax(self.Amount)
+		self.DNumSlider:SetDecimals(0)
+		
+		self.DNumSlider.TextArea:SetTextColor(self.root.textcolor)
+		self.DNumSlider.Label:SetTextColor(self.root.textcolor)
+		
+		self.DButton = self:Add("DButton")
+		self.DButton.root = self.root
+		self.DButton:SetTextColor(self.root.textcolor)
+		self.DButton:SetText("Drop!")
+		self.DButton:SetSize(self.w*1/4,self.h)
+		self.DButton:SetPos(self.w*3/4,0)
+		function self.DButton:Paint(w,h)
+			surface.SetDrawColor(self.root.linecolor)
+			surface.DrawLine(0,0,0,h)
+			surface.DrawLine(1,0,1,h)
+		end
+		function self.DButton.DoClick()
+			SendItemDrop(self.Item, math.floor(self.DNumSlider.TextArea:GetInt())) -- replace getvalue with wang value
+			self:Remove()
+		end
+		
+		self.DButton.close = self.DButton:Add("DButton")
+		self.DButton.close.root = self.root
+		self.DButton.close:SetSize(self.w*1/4/4,rowsize/2)
+		self.DButton.close:SetPos(self.w/4-self.w*1/4/4,0)
+		self.DButton.close:SetText("X")
+		self.DButton.close:SetTextColor(Color(0,0,0,255))
+		function self.DButton.close:Paint(w,h)
+			draw.RoundedBox(0,0,0,w,h,Color(255,0,0,100))
+			surface.SetDrawColor(self.root.linecolor)
+			surface.DrawOutlinedRect(0,0,w,h)
+			surface.DrawOutlinedRect(1,1,w-2,h-2)
+		end
+		function self.DButton.close.DoClick()
+			self:Remove()
+		end
+		
+	end,
+	Paint = function(self, w, h)
+		draw.RoundedBox(0,0,0,w,h,self.root.bgcolor)
+		surface.SetDrawColor(self.root.linecolor)
+		surface.DrawOutlinedRect(0,0,w,h)
+		surface.DrawOutlinedRect(1,1,w-2,h-2)
+	end
+}
+
+DROP_PANEL = vgui.RegisterTable(DROP_PANEL, "Panel")
 
 ITEM_ROW = {
 	ManInit = function(self)
@@ -253,6 +334,7 @@ ITEM_ROW = {
 		self.Amount = tonumber(amount)
 		self.ItemL:SetText(item)
 		self.AmountL:SetText(amount)
+		self:SetToolTip("Item: "..item.." Amount: "..amount)
 		local img = "jefftech/icons/noicon.png"
 		if file.Exists("materials/jefftech/icons/"..item..".png", "GAME") then img = "jefftech/icons/"..item..".png" end
 		self.Icon:SetImage(img)
@@ -266,7 +348,23 @@ ITEM_ROW = {
 		surface.DrawLine(0,h,w,h)
 	end,
 	DoRightClick = function(self)
-		print("Dropping "..self.Item)
+		self.Menu = self:Add("DMenu")
+		self.Menu:AddOption("Drop...")
+		--self.Menu:AddSpacer()
+		--self.Menu:AddOption("Clear Grid")
+		function self.Menu.OptionSelected(pnl, option)
+			local text = option:GetText()
+			if text == "Drop..." then
+				if self.DropPanel then self.DropPanel:Remove() end
+				self.DropPanel = nil
+				self.DropPanel = vgui.CreateFromTable(DROP_PANEL, self.DropPanel)
+				self.DropPanel.root = self.root
+				self.DropPanel.Item = self.Item
+				self.DropPanel.Amount = self.Amount
+				self.DropPanel:ManInit()
+				--self.DropPanel:MakePopup()
+			end
+		end
 	end,
 	DragMouseRelease = function( self, mcode ) --needed to override the gay thing they were going to "todo"
 
@@ -327,7 +425,7 @@ ITEM_ROW = {
 	end]]
 }
 
-ITEM_ROW = vgui.RegisterTable(ITEM_ROW, "DPanel")
+ITEM_ROW = vgui.RegisterTable(ITEM_ROW, "DButton")
 
 INVENTORY = {
 	Init = function(self)
@@ -471,6 +569,12 @@ net.Receive("CIconr", function()
 	local item = inp[9]
 	local img = "jefftech/icons/noicon.png"
 	if file.Exists("materials/jefftech/icons/"..item..".png", "GAME") then img = "jefftech/icons/"..item..".png" end
+	Inventory.CraftContainer.COutput:SetToolTip("Item: "..item)
+	if img == "jefftech/icons/noicon.png" then 
+		Inventory.CraftContainer.COutput.Label:SetText(item) 
+	else
+		Inventory.CraftContainer.COutput.Label:SetText("")
+	end
 	Inventory.CraftContainer.COutput:SetImage(img)
 	Inventory.CraftContainer.COutput.recipe = inp
 	Inventory.CraftContainer.COutput.Item = item

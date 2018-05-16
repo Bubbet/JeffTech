@@ -5,7 +5,19 @@ util.AddNetworkString("CIcons")
 util.AddNetworkString("CIconr")
 util.AddNetworkString("CRequest")
 util.AddNetworkString("CFin")
+util.AddNetworkString("JeffItemDrop")
 
+net.Receive("JeffItemDrop", function( len, ply )
+	local inp = net.ReadTable()
+	local item = inp[1]
+	local amount = inp[2]
+	GAMEMODE:GiveItem(ply, {item}, {-amount}, true)
+	net.Start("CFin")
+		net.WriteTable(GAMEMODE:ReturnInv(ply))
+		net.WriteBool(succeeded)
+	net.Send(ply)
+end)
+	
 net.Receive("CIcons", function( len, ply )
 	local inp = net.ReadTable()
 	local recipe = {}
@@ -18,7 +30,7 @@ net.Receive("CIcons", function( len, ply )
 			end
 			cont = true
 		end
-		--add check for imp[11] contains {"hands"}
+		--add check for inp[11] contains {"hands"}
 		if cont then continue end
 		recipe = e
 	end

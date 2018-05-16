@@ -4,6 +4,10 @@ AddCSLuaFile("gui/cl_inventory.lua")
 AddCSLuaFile("gui/cl_scoreboard.lua")
 
 include("shared.lua")
+include("player_class/player_jefftech.lua")
+include("modules/inventory.lua")
+include("modules/nodehandling.lua")
+include("modules/crafting.lua")
 
 util.AddNetworkString("Inventory")
 
