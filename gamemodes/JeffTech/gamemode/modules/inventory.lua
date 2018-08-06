@@ -97,7 +97,7 @@ function GM:GiveItem( ply, items, amounts, drop )
 	local allowed = true
 	local itemamount = {}
 	for k,e in pairs(items) do
-		if e == "" then 
+		if e == "" or amounts[k] == 0 then 
 			table.remove(items,k)
 			table.remove(amounts,k)
 			continue 
@@ -154,7 +154,10 @@ function GM:GiveItem( ply, items, amounts, drop )
 			end
 			ent.Amounts = damounts
 			ent:SetPos(util.QuickTrace(ply:GetShootPos(),ply:EyeAngles():Forward() * 100,ply).HitPos)
-			ent:SetAngles(ply:EyeAngles())
+			local Ang = ply:EyeAngles() 
+			Ang:RotateAroundAxis(Ang:Up(), -90)
+			ent:SetAngles(Ang)
+			ent:Colorize()
 			ent:Spawn()
 		end
 		
@@ -242,6 +245,7 @@ function GM:ReturnInv( ply )
 	--for _,e in pairs(sql.Query("SELECT * FROM 'Jeff_Inventory_"..ply:SteamID().."';")) do
 		--print("Player: " .. ply:Name() .. ", Item: " .. e["Item"] .. ", Amount: " .. e["Amount"])
 	--end
+	//PrintTable(sql.Query("SELECT * FROM 'Jeff_Inventory_"..ply:SteamID().."';"))
 	return sql.Query("SELECT * FROM 'Jeff_Inventory_"..ply:SteamID().."';")
 end
 

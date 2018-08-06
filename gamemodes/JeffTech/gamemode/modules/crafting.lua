@@ -41,6 +41,7 @@ end)
 
 net.Receive("CRequest", function( len, ply )
 	local recipe = net.ReadTable()
+	local bench = net.ReadTable()
 	local amount = net.ReadInt(10)
 	
 	local items = {}

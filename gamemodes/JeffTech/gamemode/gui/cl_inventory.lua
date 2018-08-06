@@ -14,6 +14,7 @@ surface.CreateFont("Inv_Contents",{
 local function SendCIcons()
 	local out = {}
 	for _,e in pairs(Inventory.CraftContainer.CIcon) do
+		e:UpdateIC()
 		local item = e.Item
 		if item == "none" then table.insert(out,"") else table.insert(out,item) end
 	end
@@ -32,8 +33,11 @@ end
 local function CraftRequest(recipe, amount)
 	if recipe[9] == "none" then return end
 	
+	bench = {"hands"}
+	
 	net.Start("CRequest")
 		net.WriteTable(recipe)
+		net.WriteTable(bench)
 		net.WriteInt(amount,10)
 	net.SendToServer()
 end
@@ -59,15 +63,18 @@ CRAFTINGICON = {
 		self.Label:Dock(FILL)
 		self.Label:SetContentAlignment(5)
 	end,
-	Paint = function(self,w,h)
+	UpdateIC = function(self)
 		self.Label:SetText("")
 		local img = "jefftech/icons/noicon.png"
+		--line below is causing issues
 		if file.Exists("materials/jefftech/icons/"..self.Item..".png", "GAME") then img = "jefftech/icons/"..self.Item..".png" end
 		self:SetImage(img)
 		self:SetToolTip("Item: "..self.Item)
 		if img == "jefftech/icons/noicon.png" then 
 			self.Label:SetText(self.Item) 
 		end
+	end,
+	Paint = function(self,w,h)
 		draw.RoundedBox(0,0,0,w,h,self.root.gridcolor)
 		surface.SetDrawColor(self.root.linecolor)
 		surface.DrawOutlinedRect(0,0,w,h)
@@ -90,7 +97,7 @@ CRAFTINGICON = {
 		SendCIcons()
 	end,
 	DragMouseRelease = function( self, mcode ) --needed to override the gay thing they were going to "todo"
-
+	
 		if ( IsValid( dragndrop.m_DropMenu ) ) then return end
 	
 		-- This wasn't the button we clicked with - so don't release drag
@@ -248,7 +255,8 @@ DROP_PANEL = {
 		self.DNumSlider:SetSize(self.w*3/4,self.h)
 		self.DNumSlider:SetText("Dropping: "..self.Item)
 		self.DNumSlider:SetMin(0)
-		self.DNumSlider:SetMax(self.Amount)
+		local max = self.root.DropMax
+		self.DNumSlider:SetMax(self.Amount<max and self.Amount or max)
 		self.DNumSlider:SetDecimals(0)
 		
 		self.DNumSlider.TextArea:SetTextColor(self.root.textcolor)
@@ -362,7 +370,7 @@ ITEM_ROW = {
 				self.DropPanel.Item = self.Item
 				self.DropPanel.Amount = self.Amount
 				self.DropPanel:ManInit()
-				--self.DropPanel:MakePopup()
+				self.DropPanel:MakePopup()
 			end
 		end
 	end,
@@ -516,6 +524,7 @@ INVENTORY = {
 			else
 				self.CraftContainer:SetVisible(true)
 				self.CraftingToggleButton:SetText("Hide Crafting Grid")
+				SendCIcons()
 			end
 		end
 	end,
@@ -560,6 +569,7 @@ net.Receive("Inventory", function()
 		Inventory:SetVisible(true)
 		gui.EnableScreenClicker(true)
 		Inventory.PlyInv = net.ReadTable()
+		Inventory.DropMax = net.ReadInt(14)
 		Inventory:Command("InvRefresh")
 	end
 end)

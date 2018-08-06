@@ -39,15 +39,15 @@ function GM:LoadNodes()
 			if string.find(e:GetClass(),"prop_") and cvars.Number("jeff_overwrite_map_resources") <= 1 then
 				if string.find(model,"tree") then
 					if string.find(model,"deciduous") then
-						ent = ents.Create("jeff_tree_small")
+						ent = ents.Create("jeff_resource_tree_small")
 					else
-						ent = ents.Create("jeff_tree_big")
+						ent = ents.Create("jeff_resource_tree_big")
 					end
 				elseif string.find(model,"rock") then
 					if string.find(model,"cluster") then
-						ent = ents.Create("jeff_rock_big")
+						ent = ents.Create("jeff_resource_rock_big")
 					else
-						ent = ents.Create("jeff_rock_small")
+						ent = ents.Create("jeff_resource_rock_small")
 					end				
 				end
 				if !(ent == nil) then 
@@ -93,3 +93,16 @@ function GM:LoadNodes()
 end
 
 concommand.Add("jeff_savenodes", function(ply, cmd, args) GAMEMODE:SaveNodes(args[1]); print(args[1]) end)
+
+function GM:RegenNodes()
+	
+	for k, e in pairs( ents.FindByClass( "jeff_resource_*" ) ) do
+		e:Remove()
+	end
+	print("Resources Removed. \nGenerating new nodes...")
+	
+	self:LoadNodes()
+	
+end
+
+concommand.Add("jeff_regennodes", function() GAMEMODE:RegenNodes() end)

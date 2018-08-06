@@ -27,11 +27,11 @@ function ENT:DoSpawn()
 				endpos = self:GetPos() + Vector(0, 0, -10000),
 				filter = function ( ent ) if ( ent:GetClass() == "prop_physics" ) then return true end end
 			} )
-		local spawnamount  = math.ceil((self:GetPos():Distance(tr.HitPos)/500)^2*self.SpawnCount)	-- linear scaling math.ceil(self:GetPos():Distance(tr.HitPos)/200*self.SpawnCount)
+		self.spawnamount  = math.ceil((self:GetPos():Distance(tr.HitPos)/500)^2*self.SpawnCount)	-- linear scaling math.ceil(self:GetPos():Distance(tr.HitPos)/200*self.SpawnCount)
 	
 		self.spawned = true
 	
-		for i = 1, spawnamount do
+		for i = 1, self.spawnamount do
 			local trace = util.TraceLine( {
 				start = self:GetPos(),
 				endpos = self:GetPos() + Vector(math.random(-self.Radius,self.Radius), math.random(-self.Radius,self.Radius), -10000),
@@ -46,7 +46,7 @@ function ENT:DoSpawn()
 				table.insert(self.SpawnLocations, trace.HitPos-Vector(0,0,20))
 				table.insert(self.SpawnAngles, trace.HitNormal:Angle()+Angle(90,0,0))
 			else
-				spawnamount = spawnamount + 1
+				self.spawnamount = self.spawnamount + 1
 			end
 		end
 	
@@ -61,7 +61,9 @@ function ENT:DoSpawn()
 			end
 			table.insert(self.PropArray, prop)
 			prop:SetPos(e)
-			prop:SetAngles(self.SpawnAngles[i])
+			local Ang = self.SpawnAngles[i]
+			Ang:RotateAroundAxis(Ang:Up(), math.random(-180,180))
+			prop:SetAngles(Ang)
 			prop:Spawn()
 			prop:GetPhysicsObject():EnableMotion(false)
 		end

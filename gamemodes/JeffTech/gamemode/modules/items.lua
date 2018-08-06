@@ -1,4 +1,5 @@
 DEFAULT_INV = {
+	{"jcoin",100},
 	{"wood",0},
 	{"stone",0},
 	{"metal",0},

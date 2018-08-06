@@ -17,8 +17,18 @@
 			"default"	"1"
 			"singleplayer"	""
 		}
-		
+
 		2
+		{
+			"name"		"jeff_cratemax"
+			"text"		"Max Crate Stack"
+			"help"		"The maximum crates contents can stack up to."
+			"type"		"Numeric"
+			"default"	"500"
+			"singleplayer"	""
+		}
+		
+		3
 		{
 			"name"		"jeff_overwrite_map_resources"
 			"text"		"Gms_ Maps"
